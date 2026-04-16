@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { loginAdmin, isAdminLoggedIn } from '@/lib/store'
+import { signIn } from 'next-auth/react'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -16,25 +16,27 @@ export default function AdminLoginPage() {
     password: '',
   })
 
-  useEffect(() => {
-    if (isAdminLoggedIn()) {
-      router.push('/admin/dashboard')
-    }
-  }, [router])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const result = await signIn('credentials', {
+        username: credentials.username,
+        password: credentials.password,
+        redirect: false,
+      })
 
-    const success = loginAdmin(credentials.username, credentials.password)
-    
-    if (success) {
-      router.push('/admin/dashboard')
-    } else {
-      setError('Username atau password salah')
+      if (result?.error) {
+        setError('Username atau password salah')
+        setLoading(false)
+      } else {
+        router.push('/admin/dashboard')
+        router.refresh()
+      }
+    } catch {
+      setError('Terjadi kesalahan. Silakan coba lagi.')
       setLoading(false)
     }
   }
@@ -124,7 +126,7 @@ export default function AdminLoginPage() {
 
           <div className="mt-6 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground text-center">
-              Default: username <span className="font-mono bg-muted px-1 rounded">admin</span> / password <span className="font-mono bg-muted px-1 rounded">admin123</span>
+              Panel Administrasi
             </p>
           </div>
         </div>

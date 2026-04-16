@@ -155,34 +155,7 @@ export function resetSlides(): SlideSettings[] {
   return defaultSlides
 }
 
-// Admin credentials (in real app, this should be in database)
-const ADMIN_KEY = 'admin_session'
-
-export function loginAdmin(username: string, password: string): boolean {
-  // Default admin credentials
-  if (username === 'admin' && password === 'admin123') {
-    localStorage.setItem(ADMIN_KEY, JSON.stringify({ loggedIn: true, timestamp: Date.now() }))
-    return true
-  }
-  return false
-}
-
-export function isAdminLoggedIn(): boolean {
-  if (typeof window === 'undefined') return false
-  const session = localStorage.getItem(ADMIN_KEY)
-  if (!session) return false
-  const data = JSON.parse(session)
-  // Session expires after 24 hours
-  if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-    localStorage.removeItem(ADMIN_KEY)
-    return false
-  }
-  return data.loggedIn
-}
-
-export function logoutAdmin(): void {
-  localStorage.removeItem(ADMIN_KEY)
-}
+// Admin authentication is now handled by Auth.js (see /auth.ts)
 
 // Visitor Counter
 const VISITOR_KEY = 'visitor_count'

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, MessageSquareText, CheckCircle2 } from 'lucide-react'
-import { saveAspiration } from '@/lib/store'
 
 const categories = [
   'Pelayanan Publik',
@@ -20,6 +19,7 @@ const categories = [
 export default function AspirationFormPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     nama: '',
     email: '',
@@ -36,12 +36,27 @@ export default function AspirationFormPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    saveAspiration(formData)
-    setLoading(false)
-    setSubmitted(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/aspirations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengirim aspirasi')
+      }
+
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan, silakan coba lagi')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
@@ -94,6 +109,12 @@ export default function AspirationFormPage() {
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10">
         <form onSubmit={handleSubmit} className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8 animate-fade-in-up">
+          {error && (
+            <div className="mb-4 p-3 sm:p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
               <div>

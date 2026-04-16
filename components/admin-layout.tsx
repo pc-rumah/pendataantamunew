@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Shield, Users, MessageSquareText, LogOut, Menu, X, LayoutDashboard, Images } from 'lucide-react'
-import { isAdminLoggedIn, logoutAdmin } from '@/lib/store'
+import { signOut } from 'next-auth/react'
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,29 +14,11 @@ const navItems = [
 ]
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    if (!isAdminLoggedIn()) {
-      router.push('/admin/login')
-    }
-  }, [router])
 
   const handleLogout = () => {
-    logoutAdmin()
-    router.push('/admin/login')
-  }
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    )
+    signOut({ callbackUrl: '/admin/login' })
   }
 
   return (

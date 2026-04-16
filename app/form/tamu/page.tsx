@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, UserPlus, CheckCircle2 } from 'lucide-react'
-import { saveGuest } from '@/lib/store'
 
 export default function GuestFormPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -20,18 +21,45 @@ export default function GuestFormPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    // Clear field error on change
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        delete next[e.target.name]
+        return next
+      })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    
-    // Simulate brief loading
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    saveGuest(formData)
-    setLoading(false)
-    setSubmitted(true)
+    setError(null)
+    setFieldErrors({})
+
+    try {
+      const res = await fetch('/api/guests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        if (data.details) {
+          setFieldErrors(data.details)
+        }
+        setError(data.error || 'Terjadi kesalahan saat menyimpan data')
+        return
+      }
+
+      setSubmitted(true)
+    } catch {
+      setError('Tidak dapat terhubung ke server. Silakan coba lagi.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
@@ -84,6 +112,11 @@ export default function GuestFormPage() {
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10">
         <form onSubmit={handleSubmit} className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8 animate-fade-in-up">
+          {error && (
+            <div className="mb-4 sm:mb-5 p-3 sm:p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+              {error}
+            </div>
+          )}
           <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             <div>
               <label htmlFor="nama" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
