@@ -1,4 +1,4 @@
-import type { Guest, Aspiration } from './store'
+import type { Guest, Aspiration } from './schema'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)

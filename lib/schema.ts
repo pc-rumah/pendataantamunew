@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar, date } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, uuid, varchar, date, integer } from "drizzle-orm/pg-core"
 
 export const adminUsers = pgTable("admin_users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -44,3 +44,10 @@ export const aspirations = pgTable("aspirations", {
 
 export type Aspiration = typeof aspirations.$inferSelect
 export type NewAspiration = typeof aspirations.$inferInsert
+
+export const dailyVisits = pgTable("daily_visits", {
+  date: date("date").primaryKey(), // YYYY-MM-DD format
+  count: integer("count").notNull().default(1),
+})
+
+export type DailyVisit = typeof dailyVisits.$inferSelect

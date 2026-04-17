@@ -2,15 +2,32 @@
 
 import { useEffect, useState } from 'react'
 import { Eye, Users, TrendingUp } from 'lucide-react'
-import { recordVisit, getVisitorStats, type VisitorStats } from '@/lib/store'
+import { recordVisitAction, getVisitorStatsAction, type VisitorStats } from '@/app/actions/statistics'
+
+const VISITOR_SESSION_KEY = 'visitor_session'
 
 export function VisitorCounter() {
   const [stats, setStats] = useState<VisitorStats | null>(null)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    const newStats = recordVisit()
-    setStats(newStats)
+    const initStats = async () => {
+      try {
+        const sessionVisited = sessionStorage.getItem(VISITOR_SESSION_KEY)
+        if (sessionVisited) {
+          const currentStats = await getVisitorStatsAction()
+          setStats(currentStats)
+        } else {
+          const newStats = await recordVisitAction()
+          sessionStorage.setItem(VISITOR_SESSION_KEY, 'true')
+          setStats(newStats)
+        }
+      } catch (error) {
+        console.error('Failed to load visitor stats:', error)
+      }
+    }
+    
+    initStats()
     
     // Trigger animation after mount
     const timer = setTimeout(() => setIsVisible(true), 100)

@@ -1,15 +1,16 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { Search, Edit2, Trash2, Printer, Download, X, Save } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Search, Edit2, Trash2, Printer, Download, X, Save, Loader2 } from 'lucide-react'
 import { AdminLayout } from '@/components/admin-layout'
-import { getGuests, updateGuest, deleteGuest, type Guest } from '@/lib/store'
+import type { Guest } from '@/lib/schema'
 import { generateGuestPDF, printGuestData } from '@/lib/pdf-utils'
 
 export default function TamuAdminPage() {
   const [guests, setGuests] = useState<Guest[]>([])
   const [search, setSearch] = useState('')
   const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
@@ -18,28 +19,58 @@ export default function TamuAdminPage() {
     loadGuests()
   }, [])
 
-  const loadGuests = () => {
-    setGuests(getGuests())
+  const loadGuests = async () => {
+    try {
+      setIsLoading(true)
+      const res = await fetch('/api/guests')
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
+      setGuests(data.guests || [])
+    } catch (error) {
+      console.error('Error fetching guests:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const filteredGuests = guests.filter(
     (g) =>
-      g.nama.toLowerCase().includes(search.toLowerCase()) ||
-      g.nik.includes(search) ||
-      g.tujuan.toLowerCase().includes(search.toLowerCase())
+      (g.nama || '').toLowerCase().includes(search.toLowerCase()) ||
+      (g.nik || '').includes(search) ||
+      (g.tujuan || '').toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingGuest) return
-    updateGuest(editingGuest.id, editingGuest)
-    loadGuests()
-    setEditingGuest(null)
+    try {
+      const res = await fetch(`/api/guests/${editingGuest.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingGuest),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      loadGuests()
+      setEditingGuest(null)
+    } catch (error) {
+      console.error('Error updating guest:', error)
+      alert('Gagal memperbarui data tamu')
+    }
   }
 
-  const handleDelete = (id: string) => {
-    deleteGuest(id)
-    loadGuests()
-    setDeleteConfirm(null)
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/guests/${id}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error('Failed to delete')
+      loadGuests()
+      setDeleteConfirm(null)
+    } catch (error) {
+      console.error('Error deleting guest:', error)
+      alert('Gagal menghapus data tamu')
+    }
   }
 
   const handleDownloadPDF = () => {
@@ -105,7 +136,16 @@ export default function TamuAdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredGuests.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                      <div className="flex justify-center items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        <span>Memuat data...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredGuests.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       {search ? 'Tidak ada data yang cocok' : 'Belum ada data tamu'}

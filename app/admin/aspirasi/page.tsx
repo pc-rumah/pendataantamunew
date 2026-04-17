@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search, Edit2, Trash2, Printer, Download, X, Save, Eye } from 'lucide-react'
+import { Search, Edit2, Trash2, Printer, Download, X, Save, Eye, Loader2 } from 'lucide-react'
 import { AdminLayout } from '@/components/admin-layout'
-import { getAspirations, updateAspiration, deleteAspiration, type Aspiration } from '@/lib/store'
+import type { Aspiration } from '@/lib/schema'
 import { generateAspirationPDF, printAspirationData } from '@/lib/pdf-utils'
 
 const statusOptions = [
@@ -17,6 +17,7 @@ export default function AspirasiAdminPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [editingAspiration, setEditingAspiration] = useState<Aspiration | null>(null)
   const [viewingAspiration, setViewingAspiration] = useState<Aspiration | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -26,35 +27,77 @@ export default function AspirasiAdminPage() {
     loadAspirations()
   }, [])
 
-  const loadAspirations = () => {
-    setAspirations(getAspirations())
+  const loadAspirations = async () => {
+    try {
+      setIsLoading(true)
+      const res = await fetch('/api/aspirations')
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
+      setAspirations(data.aspirations || [])
+    } catch (error) {
+      console.error('Error fetching aspirations:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const filteredAspirations = aspirations.filter((a) => {
     const matchSearch =
-      a.nama.toLowerCase().includes(search.toLowerCase()) ||
-      a.judul.toLowerCase().includes(search.toLowerCase()) ||
-      a.kategori.toLowerCase().includes(search.toLowerCase())
+      (a.nama || '').toLowerCase().includes(search.toLowerCase()) ||
+      (a.judul || '').toLowerCase().includes(search.toLowerCase()) ||
+      (a.kategori || '').toLowerCase().includes(search.toLowerCase())
     const matchStatus = filterStatus === 'all' || a.status === filterStatus
     return matchSearch && matchStatus
   })
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingAspiration) return
-    updateAspiration(editingAspiration.id, editingAspiration)
-    loadAspirations()
-    setEditingAspiration(null)
+    try {
+      const res = await fetch(`/api/aspirations/${editingAspiration.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingAspiration),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      loadAspirations()
+      setEditingAspiration(null)
+    } catch (error) {
+      console.error('Error updating aspiration:', error)
+      alert('Gagal memperbarui aspirasi')
+    }
   }
 
-  const handleStatusChange = (id: string, status: Aspiration['status']) => {
-    updateAspiration(id, { status })
-    loadAspirations()
+  const handleStatusChange = async (id: string, status: string) => {
+    try {
+      const res = await fetch(`/api/aspirations/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      })
+      if (!res.ok) throw new Error('Failed to check status')
+      loadAspirations()
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Gagal memperbarui status')
+    }
   }
 
-  const handleDelete = (id: string) => {
-    deleteAspiration(id)
-    loadAspirations()
-    setDeleteConfirm(null)
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/aspirations/${id}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error('Failed to delete')
+      loadAspirations()
+      setDeleteConfirm(null)
+    } catch (error) {
+      console.error('Error deleting aspiration:', error)
+      alert('Gagal menghapus aspirasi')
+    }
   }
 
   const handleDownloadPDF = () => {
@@ -132,7 +175,16 @@ export default function AspirasiAdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredAspirations.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                      <div className="flex justify-center items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        <span>Memuat data...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredAspirations.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       {search || filterStatus !== 'all' ? 'Tidak ada data yang cocok' : 'Belum ada aspirasi'}
@@ -154,7 +206,7 @@ export default function AspirasiAdminPage() {
                       <td className="px-4 py-3">
                         <select
                           value={asp.status}
-                          onChange={(e) => handleStatusChange(asp.id, e.target.value as Aspiration['status'])}
+                          onChange={(e) => handleStatusChange(asp.id, e.target.value)}
                           className={`text-xs px-2 py-1 rounded-full border-0 cursor-pointer ${
                             statusOptions.find((s) => s.value === asp.status)?.color
                           }`}
@@ -307,7 +359,7 @@ export default function AspirasiAdminPage() {
                 <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                 <select
                   value={editingAspiration.status}
-                  onChange={(e) => setEditingAspiration({ ...editingAspiration, status: e.target.value as Aspiration['status'] })}
+                  onChange={(e) => setEditingAspiration({ ...editingAspiration, status: e.target.value })}
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   {statusOptions.map((opt) => (
