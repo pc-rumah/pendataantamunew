@@ -51,3 +51,17 @@ export const dailyVisits = pgTable("daily_visits", {
 })
 
 export type DailyVisit = typeof dailyVisits.$inferSelect
+
+export const slides = pgTable("slides", {
+  id: integer("id").primaryKey(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  bgClass: text("bg_class"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
+export type Slide = typeof slides.$inferSelect
+export type NewSlide = typeof slides.$inferInsert

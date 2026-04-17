@@ -2,16 +2,27 @@
 
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { getSlides, type SlideSettings } from '@/lib/store'
+import type { Slide } from '@/lib/schema'
 
 export function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [slides, setSlides] = useState<SlideSettings[]>([])
+  const [slides, setSlides] = useState<Slide[]>([])
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    setSlides(getSlides())
+    const fetchSlides = async () => {
+      try {
+        const res = await fetch('/api/slides')
+        if (res.ok) {
+          const data = await res.json()
+          setSlides(data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch slides:', error)
+      }
+    }
+    fetchSlides()
   }, [])
 
   useEffect(() => {

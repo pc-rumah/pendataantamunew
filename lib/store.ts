@@ -96,63 +96,6 @@ export function deleteAspiration(id: string): boolean {
   return true
 }
 
-// Slide Settings
-const SLIDES_KEY = 'slides_settings'
-
-export interface SlideSettings {
-  id: number
-  title: string
-  subtitle: string
-  description: string
-  imageUrl: string
-  bgClass: string
-}
-
-const defaultSlides: SlideSettings[] = [
-  {
-    id: 1,
-    title: 'Selamat Datang di Sistem Pendataan Tamu Digital',
-    subtitle: 'Kantor Kecamatan Pecalungan',
-    description: 'Layanan pendataan tamu dan penyampaian aspirasi masyarakat secara digital',
-    imageUrl: '',
-    bgClass: 'bg-gradient-to-br from-primary via-primary/90 to-accent',
-  },
-  {
-    id: 2,
-    title: 'Tentang Sistem Kami',
-    subtitle: 'Modern & Efisien',
-    description: 'Sistem ini dirancang untuk memudahkan pendataan tamu dan menampung aspirasi masyarakat secara transparan, cepat, dan akuntabel di Kantor Kecamatan Pecalungan.',
-    imageUrl: '',
-    bgClass: 'bg-gradient-to-br from-accent via-accent/90 to-primary',
-  },
-  {
-    id: 3,
-    title: 'Aspirasi Anda Penting',
-    subtitle: 'Suara Anda Didengar',
-    description: 'Setiap aspirasi yang masuk akan ditindaklanjuti dengan serius untuk kemajuan Kecamatan Pecalungan.',
-    imageUrl: '',
-    bgClass: 'bg-gradient-to-br from-primary/80 via-accent/80 to-primary',
-  },
-]
-
-export function getSlides(): SlideSettings[] {
-  if (typeof window === 'undefined') return defaultSlides
-  const data = localStorage.getItem(SLIDES_KEY)
-  return data ? JSON.parse(data) : defaultSlides
-}
-
-export function updateSlide(id: number, data: Partial<SlideSettings>): SlideSettings | null {
-  const slides = getSlides()
-  const index = slides.findIndex((s) => s.id === id)
-  if (index === -1) return null
-  slides[index] = { ...slides[index], ...data }
-  localStorage.setItem(SLIDES_KEY, JSON.stringify(slides))
-  return slides[index]
-}
-
-export function resetSlides(): SlideSettings[] {
-  localStorage.setItem(SLIDES_KEY, JSON.stringify(defaultSlides))
-  return defaultSlides
-}
+// Slide Settings are now directly fetched from the PostgreSQL API
 
 // Admin authentication is now handled by Auth.js (see /auth.ts)

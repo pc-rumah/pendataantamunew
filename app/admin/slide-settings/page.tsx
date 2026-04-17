@@ -2,58 +2,112 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { AdminLayout } from '@/components/admin-layout'
-import { getSlides, updateSlide, resetSlides, type SlideSettings } from '@/lib/store'
+import type { Slide } from '@/lib/schema'
 import { Save, RotateCcw, ImagePlus, X, Eye, Check } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function SlideSettingsPage() {
-  const [slides, setSlides] = useState<SlideSettings[]>([])
+  const [slides, setSlides] = useState<Slide[]>([])
   const [activeSlide, setActiveSlide] = useState(0)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  const fetchSlides = async () => {
+    try {
+      const res = await fetch('/api/slides')
+      if (res.ok) {
+        const data = await res.json()
+        setSlides(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch slides', error)
+    }
+  }
+
   useEffect(() => {
-    setSlides(getSlides())
+    fetchSlides()
   }, [])
 
-  const handleSlideChange = (id: number, field: keyof SlideSettings, value: string) => {
+  const handleSlideChange = (id: number, field: keyof Slide, value: string) => {
     setSlides(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
   }
 
-  const handleSaveSlide = async (slide: SlideSettings) => {
+  const handleSaveSlide = async (slide: Slide) => {
     setSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    updateSlide(slide.id, slide)
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    try {
+      const res = await fetch('/api/slides', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slide)
+      })
+      if (!res.ok) throw new Error('Failed to save')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+      toast.success('Slide berhasil disimpan')
+    } catch (error) {
+      console.error(error)
+      toast.error('Gagal menyimpan slide')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleSaveAll = async () => {
     setSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    slides.forEach(slide => updateSlide(slide.id, slide))
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  const handleReset = () => {
-    if (confirm('Apakah Anda yakin ingin mengembalikan semua pengaturan slide ke default?')) {
-      const defaultSlides = resetSlides()
-      setSlides(defaultSlides)
+    try {
+      const res = await fetch('/api/slides', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slides)
+      })
+      if (!res.ok) throw new Error('Failed to save all')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+      toast.success('Semua slide berhasil disimpan')
+    } catch (error) {
+      console.error(error)
+      toast.error('Gagal menyimpan slides')
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handleImageUpload = (slideId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReset = async () => {
+    if (confirm('Apakah Anda yakin ingin mengembalikan semua pengaturan slide ke default?')) {
+      try {
+        const res = await fetch('/api/slides/reset', { method: 'POST' })
+        if (res.ok) {
+          const data = await res.json()
+          setSlides(data)
+          toast.success('Berhasil reset pengaturan slide')
+        }
+      } catch (error) {
+        console.error('Failed to reset', error)
+        toast.error('Gagal mereset slide')
+      }
+    }
+  }
+
+  const handleImageUpload = async (slideId: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        handleSlideChange(slideId, 'imageUrl', reader.result as string)
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (res.ok) {
+        const { url } = await res.json()
+        handleSlideChange(slideId, 'imageUrl', url)
+        toast.success('Gambar berhasil diunggah')
+      } else {
+        toast.error('Gagal mengunggah gambar')
       }
-      reader.readAsDataURL(file)
     }
   }
 
