@@ -29,10 +29,9 @@ export function ActionSection() {
     <section ref={sectionRef} className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-card overflow-hidden">
       <div className="max-w-4xl mx-auto">
         {/* Animated header */}
-        <div 
-          className={`text-center mb-8 sm:mb-10 lg:mb-12 transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+        <div
+          className={`text-center mb-8 sm:mb-10 lg:mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
         >
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 text-balance">
             Pilih Layanan Kami
@@ -46,9 +45,8 @@ export function ActionSection() {
           {/* Guest Form Button with animation */}
           <Link
             href="/form/tamu"
-            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 sm:p-6 lg:p-8 text-primary-foreground shadow-lg hover:shadow-2xl transition-all duration-500 sm:hover:-translate-y-2 sm:hover:scale-[1.02] active:scale-[0.98] ${
-              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'
-            }`}
+            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 sm:p-6 lg:p-8 text-primary-foreground shadow-lg hover:shadow-2xl transition-all duration-500 sm:hover:-translate-y-2 sm:hover:scale-[1.02] active:scale-[0.98] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'
+              }`}
             style={{ transitionDelay: isVisible ? '200ms' : '0ms' }}
           >
             <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
@@ -70,9 +68,8 @@ export function ActionSection() {
           {/* Aspiration Button with animation */}
           <Link
             href="/form/aspirasi"
-            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-accent to-accent/80 p-5 sm:p-6 lg:p-8 text-accent-foreground shadow-lg hover:shadow-2xl transition-all duration-500 sm:hover:-translate-y-2 sm:hover:scale-[1.02] active:scale-[0.98] ${
-              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
-            }`}
+            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-accent to-accent/80 p-5 sm:p-6 lg:p-8 text-accent-foreground shadow-lg hover:shadow-2xl transition-all duration-500 sm:hover:-translate-y-2 sm:hover:scale-[1.02] active:scale-[0.98] ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
+              }`}
             style={{ transitionDelay: isVisible ? '400ms' : '0ms' }}
           >
             <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
@@ -83,7 +80,7 @@ export function ActionSection() {
                 <MessageSquareText className="w-6 h-6 sm:w-7 lg:w-8 sm:h-7 lg:h-8 group-hover:scale-110 transition-transform" />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold sm:mb-2 lg:mb-3 group-hover:translate-x-1 transition-transform">Serap Aspirasi</h3>
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold sm:mb-2 lg:mb-3 group-hover:translate-x-1 transition-transform">Lapor Pak Camat</h3>
                 <p className="text-accent-foreground/80 text-sm sm:text-base group-hover:translate-x-1 transition-transform delay-75 hidden sm:block">
                   Sampaikan aspirasi, saran, dan masukan Anda untuk kemajuan bersama
                 </p>

@@ -66,9 +66,9 @@ export default function AspirationFormPage() {
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Aspirasi Berhasil Dikirim!</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Laporan Berhasil Dikirim!</h1>
           <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
-            Terima kasih telah menyampaikan aspirasi Anda. Kami akan menindaklanjuti segera.
+            Terima kasih telah menyampaikan laporan Anda. Kami akan menindaklanjuti segera.
           </p>
           <Link
             href="/"
@@ -99,8 +99,8 @@ export default function AspirationFormPage() {
               <MessageSquareText className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold">Formulir Serap Aspirasi</h1>
-              <p className="text-accent-foreground/80 text-sm sm:text-base">Sampaikan aspirasi, saran, atau masukan Anda</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Formulir Laporan Pak Camat</h1>
+              <p className="text-accent-foreground/80 text-sm sm:text-base">Sampaikan laporan, saran, atau masukan Anda</p>
             </div>
           </div>
         </div>
@@ -190,7 +190,7 @@ export default function AspirationFormPage() {
 
             <div>
               <label htmlFor="judul" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
-                Judul Aspirasi <span className="text-destructive">*</span>
+                Judul Laporan <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -200,13 +200,13 @@ export default function AspirationFormPage() {
                 value={formData.judul}
                 onChange={handleChange}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow text-sm sm:text-base"
-                placeholder="Judul singkat aspirasi Anda"
+                placeholder="Judul singkat laporan Anda"
               />
             </div>
 
             <div>
               <label htmlFor="isi" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
-                Isi Aspirasi <span className="text-destructive">*</span>
+                Isi Laporan <span className="text-destructive">*</span>
               </label>
               <textarea
                 id="isi"
@@ -216,7 +216,7 @@ export default function AspirationFormPage() {
                 value={formData.isi}
                 onChange={handleChange}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow resize-none text-sm sm:text-base"
-                placeholder="Jelaskan aspirasi, saran, atau masukan Anda secara detail..."
+                placeholder="Jelaskan laporan, saran, atau masukan Anda secara detail..."
               />
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function AspirationFormPage() {
             ) : (
               <>
                 <MessageSquareText className="w-4 h-4 sm:w-5 sm:h-5" />
-                Kirim Aspirasi
+                Kirim Laporan
               </>
             )}
           </button>
