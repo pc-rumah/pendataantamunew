@@ -17,7 +17,7 @@ function sanitizeFilename(name: string) {
 }
 
 async function uploadToSupabaseStorage(file: File, buffer: Buffer) {
-  const supabaseUrl = process.env.SUPABASE_URL
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'slides'
 
@@ -25,8 +25,10 @@ async function uploadToSupabaseStorage(file: File, buffer: Buffer) {
     return null
   }
 
+  const normalizedSupabaseUrl = supabaseUrl.replace(/\/$/, '')
   const filename = `${Date.now()}-${sanitizeFilename(file.name)}`
-  const endpoint = `${supabaseUrl}/storage/v1/object/${bucket}/${filename}`
+  const endpoint = `${normalizedSupabaseUrl}/storage/v1/object/${bucket}/${filename}`
+  const bytes = new Uint8Array(buffer)
 
   const uploadRes = await fetch(endpoint, {
     method: 'POST',
@@ -36,7 +38,7 @@ async function uploadToSupabaseStorage(file: File, buffer: Buffer) {
       'Content-Type': file.type || 'application/octet-stream',
       'x-upsert': 'true',
     },
-    body: buffer,
+    body: bytes,
   })
 
   if (!uploadRes.ok) {
@@ -44,7 +46,7 @@ async function uploadToSupabaseStorage(file: File, buffer: Buffer) {
     throw new Error(`Supabase upload failed (${uploadRes.status}): ${details}`)
   }
 
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${filename}`
+  return `${normalizedSupabaseUrl}/storage/v1/object/public/${bucket}/${filename}`
 }
 
 export async function POST(request: Request) {
@@ -75,13 +77,24 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
-    // In production/serverless, prefer durable object storage if configured.
+    // In production/serverless, use durable object storage.
     const cloudUrl = await uploadToSupabaseStorage(file, buffer)
     if (cloudUrl) {
       return NextResponse.json({
         success: true,
         url: cloudUrl,
       })
+    }
+
+    const isServerlessProd = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    if (isServerlessProd) {
+      return NextResponse.json(
+        {
+          error:
+            'Storage belum terkonfigurasi. Set SUPABASE_URL (atau NEXT_PUBLIC_SUPABASE_URL) dan SUPABASE_SERVICE_ROLE_KEY di Vercel.',
+        },
+        { status: 500 }
+      )
     }
 
     const filename = `${Date.now()}-${sanitizeFilename(file.name)}`
