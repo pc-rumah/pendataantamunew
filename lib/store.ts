@@ -1,7 +1,6 @@
 export interface Guest {
   id: string
   nama: string
-  nik: string
   alamat: string
   noTelp: string
   instansi: string

@@ -16,7 +16,6 @@ export type NewAdminUser = typeof adminUsers.$inferInsert
 export const guests = pgTable("guests", {
   id: uuid("id").defaultRandom().primaryKey(),
   nama: text("nama").notNull(),
-  nik: varchar("nik", { length: 16 }).notNull(),
   alamat: text("alamat").notNull(),
   noTelp: varchar("no_telp", { length: 20 }).notNull(),
   tanggal: date("tanggal").notNull(),

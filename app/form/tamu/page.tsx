@@ -1,66 +1,69 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft, UserPlus, CheckCircle2 } from 'lucide-react'
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, UserPlus, CheckCircle2 } from "lucide-react";
 
 export default function GuestFormPage() {
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [formData, setFormData] = useState({
-    nama: '',
-    nik: '',
-    alamat: '',
-    noTelp: '',
-    instansi: '',
-    tujuan: '',
-    tanggal: new Date().toISOString().split('T')[0],
-  })
+    nama: "",
+    alamat: "",
+    noTelp: "",
+    instansi: "",
+    tujuan: "",
+    tanggal: new Date().toISOString().split("T")[0],
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     // Clear field error on change
     if (fieldErrors[e.target.name]) {
       setFieldErrors((prev) => {
-        const next = { ...prev }
-        delete next[e.target.name]
-        return next
-      })
+        const next = { ...prev };
+        delete next[e.target.name];
+        return next;
+      });
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setFieldErrors({})
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setFieldErrors({});
 
     try {
-      const res = await fetch('/api/guests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/guests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
         if (data.details) {
-          setFieldErrors(data.details)
+          setFieldErrors(data.details);
         }
-        setError(data.error || 'Terjadi kesalahan saat menyimpan data')
-        return
+        setError(data.error || "Terjadi kesalahan saat menyimpan data");
+        return;
       }
 
-      setSubmitted(true)
+      setSubmitted(true);
     } catch {
-      setError('Tidak dapat terhubung ke server. Silakan coba lagi.')
+      setError("Tidak dapat terhubung ke server. Silakan coba lagi.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (submitted) {
     return (
@@ -69,7 +72,9 @@ export default function GuestFormPage() {
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Data Berhasil Disimpan!</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+            Data Berhasil Disimpan!
+          </h1>
           <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
             Terima kasih telah mengisi data kunjungan Anda.
           </p>
@@ -82,7 +87,7 @@ export default function GuestFormPage() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -102,8 +107,12 @@ export default function GuestFormPage() {
               <UserPlus className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold">Formulir Data Tamu</h1>
-              <p className="text-primary-foreground/80 text-sm sm:text-base">Silakan isi data diri Anda dengan lengkap</p>
+              <h1 className="text-xl sm:text-2xl font-bold">
+                Formulir Data Tamu
+              </h1>
+              <p className="text-primary-foreground/80 text-sm sm:text-base">
+                Silakan isi data diri Anda dengan lengkap
+              </p>
             </div>
           </div>
         </div>
@@ -111,7 +120,10 @@ export default function GuestFormPage() {
 
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-10">
-        <form onSubmit={handleSubmit} className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8 animate-fade-in-up">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8 animate-fade-in-up"
+        >
           {error && (
             <div className="mb-4 sm:mb-5 p-3 sm:p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
               {error}
@@ -119,7 +131,10 @@ export default function GuestFormPage() {
           )}
           <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             <div>
-              <label htmlFor="nama" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+              <label
+                htmlFor="nama"
+                className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+              >
                 Nama Lengkap <span className="text-destructive">*</span>
               </label>
               <input
@@ -135,24 +150,10 @@ export default function GuestFormPage() {
             </div>
 
             <div>
-              <label htmlFor="nik" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
-                NIK (Nomor Induk Kependudukan) <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="text"
-                id="nik"
-                name="nik"
-                required
-                maxLength={16}
-                value={formData.nik}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow text-sm sm:text-base"
-                placeholder="Masukkan 16 digit NIK"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="alamat" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+              <label
+                htmlFor="alamat"
+                className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+              >
                 Alamat <span className="text-destructive">*</span>
               </label>
               <textarea
@@ -169,7 +170,10 @@ export default function GuestFormPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
               <div>
-                <label htmlFor="noTelp" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                <label
+                  htmlFor="noTelp"
+                  className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+                >
                   No. Telepon <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -185,7 +189,10 @@ export default function GuestFormPage() {
               </div>
 
               <div>
-                <label htmlFor="tanggal" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                <label
+                  htmlFor="tanggal"
+                  className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+                >
                   Tanggal Kunjungan <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -201,7 +208,10 @@ export default function GuestFormPage() {
             </div>
 
             <div>
-              <label htmlFor="instansi" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+              <label
+                htmlFor="instansi"
+                className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+              >
                 Instansi/Lembaga
               </label>
               <input
@@ -216,7 +226,10 @@ export default function GuestFormPage() {
             </div>
 
             <div>
-              <label htmlFor="tujuan" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+              <label
+                htmlFor="tujuan"
+                className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2"
+              >
                 Tujuan Kunjungan <span className="text-destructive">*</span>
               </label>
               <textarea
@@ -252,5 +265,5 @@ export default function GuestFormPage() {
         </form>
       </div>
     </main>
-  )
+  );
 }

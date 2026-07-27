@@ -66,7 +66,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .update(guests)
       .set({
         nama: data.nama,
-        nik: data.nik,
         alamat: data.alamat,
         noTelp: data.noTelp,
         tanggal: data.tanggal,

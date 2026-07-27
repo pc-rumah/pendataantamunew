@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
       .insert(guests)
       .values({
         nama: data.nama,
-        nik: data.nik,
         alamat: data.alamat,
         noTelp: data.noTelp,
         tanggal: data.tanggal,

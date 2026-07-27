@@ -51,7 +51,6 @@ function generateGuestHTML(guests: Guest[]): string {
           <tr>
             <th style="width: 30px;">No</th>
             <th>Nama</th>
-            <th>NIK</th>
             <th>No. Telepon</th>
             <th>Instansi</th>
             <th>Tujuan</th>
@@ -63,7 +62,6 @@ function generateGuestHTML(guests: Guest[]): string {
             <tr>
               <td>${index + 1}</td>
               <td><strong>${guest.nama}</strong><br><small style="color: #64748b;">${guest.alamat}</small></td>
-              <td style="font-family: monospace;">${guest.nik}</td>
               <td>${guest.noTelp}</td>
               <td>${guest.instansi || '-'}</td>
               <td>${guest.tujuan}</td>

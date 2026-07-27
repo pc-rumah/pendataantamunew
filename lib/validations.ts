@@ -2,10 +2,6 @@ import { z } from "zod"
 
 export const guestFormSchema = z.object({
   nama: z.string().min(1, "Nama lengkap wajib diisi"),
-  nik: z
-    .string()
-    .length(16, "NIK harus 16 digit")
-    .regex(/^\d+$/, "NIK harus berupa angka"),
   alamat: z.string().min(1, "Alamat wajib diisi"),
   noTelp: z.string().min(1, "No. telepon wajib diisi"),
   tanggal: z.string().min(1, "Tanggal kunjungan wajib diisi"),
