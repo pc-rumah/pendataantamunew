@@ -3,7 +3,6 @@ config({ path: ".env.local" })
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
 import { adminUsers } from "../lib/schema"
-import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 async function seed() {
@@ -12,34 +11,35 @@ async function seed() {
   })
   const db = drizzle(pool)
 
-  console.log("🌱 Seeding admin user...")
+  const username = process.env.ADMIN_USERNAME ?? "admin"
+  const password = process.env.ADMIN_PASSWORD ?? "admin123"
+  const name = process.env.ADMIN_NAME ?? "Administrator"
+  const email = process.env.ADMIN_EMAIL ?? "admin@webripin.local"
 
-  // Check if admin already exists
-  const existing = await db
-    .select()
-    .from(adminUsers)
-    .where(eq(adminUsers.username, "admin"))
-
-  if (existing.length > 0) {
-    console.log("⚠️  Admin user already exists, skipping...")
-    await pool.end()
-    process.exit(0)
-  }
+  console.log(`🌱 Seeding admin user: ${username}...`)
 
   // Hash password
-  const hashedPassword = await bcrypt.hash("admin123", 12)
+  const hashedPassword = await bcrypt.hash(password, 12)
 
-  // Insert admin user
+  // Insert or update the admin user so rerunning the seed keeps credentials in sync
   await db.insert(adminUsers).values({
-    username: "admin",
+    username,
     password: hashedPassword,
-    name: "Administrator",
-    email: "admin@webripin.local",
+    name,
+    email,
+  }).onConflictDoUpdate({
+    target: adminUsers.username,
+    set: {
+      password: hashedPassword,
+      name,
+      email,
+      updatedAt: new Date(),
+    },
   })
 
   console.log("✅ Admin user seeded successfully!")
-  console.log("   Username: admin")
-  console.log("   Password: admin123")
+  console.log(`   Username: ${username}`)
+  console.log(`   Password: ${password}`)
 
   await pool.end()
   process.exit(0)
